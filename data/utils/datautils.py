@@ -12,20 +12,24 @@ from torchaudio import transforms
 warnings.filterwarnings("ignore")
 
 
-def audio_open(audio_path):
+def audio_open(audio_path):        
     """
     audio_path -> [tensor:channel*frames,int:sample_rate]
     """
-    sig, sr = torchaudio.load(audio_path, channels_first=True)
+    # channels_first=True: 表示在返回的张量中将通道维度放在第一个维度。
+    # 这通常是为了与 PyTorch 惯例保持一致，即 (batch, channels, time) 的顺序。
+    sig, sr = torchaudio.load(audio_path, channels_first=True)   # 读取文件转为张量，输出的是一维张量和采样率
     return [sig, sr]
 
 
-def get_wave_plot(wave_path, plot_save_path=None, plot_save=False):
+def get_wave_plot(wave_path, plot_save_path=None, plot_save=False):  # 画出wav曲线图
     f = wave.open(wave_path, 'rb')
-    params = f.getparams()
-    nchannels, sampwidth, framerate, nframes = params[:4]
+    params = f.getparams()        # 可以直接读取音频文件所有参数
+    # 采样率：每秒的采样数，以赫兹（Hz）为单位。采样率决定了声音的音调，高采样率可以捕捉更高频率的声音。
+    # 帧数：表示音频文件中的总帧数。帧是音频文件中的一个小片段，其大小由采样率和时长决定。
+    nchannels, sampwidth, framerate, nframes = params[:4]  # 通道、采样宽度、帧率、帧数
 
-    str_bytes_data = f.readframes(nframes=nframes)
+    str_bytes_data = f.readframes(nframes=nframes)   # 
     wavedata = np.frombuffer(str_bytes_data, dtype=np.int16)
     wavedata = wavedata * 1.0 / (max(abs(wavedata)))
     time = np.arange(0, nframes) * (1.0 / framerate)
