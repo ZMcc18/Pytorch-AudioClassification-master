@@ -27,6 +27,7 @@ def get_wave_plot(wave_path, plot_save_path=None, plot_save=False):  # 画出wav
     params = f.getparams()        # 可以直接读取音频文件所有参数
     # 采样率：每秒的采样数，以赫兹（Hz）为单位。采样率决定了声音的音调，高采样率可以捕捉更高频率的声音。
     # 帧数：表示音频文件中的总帧数。帧是音频文件中的一个小片段，其大小由采样率和时长决定。
+    # sampwidth：它决定了音频文件的动态范围和分辨率。常见的 sampwidth 值包括 1、2、3 和 4 字节，分别对应于 8 位、16 位、24 位和 32 位的编码。
     nchannels, sampwidth, framerate, nframes = params[:4]  # 通道、采样宽度、帧率、帧数
 
     str_bytes_data = f.readframes(nframes=nframes)   # 
