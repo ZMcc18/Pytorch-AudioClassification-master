@@ -30,38 +30,38 @@ def get_wave_plot(wave_path, plot_save_path=None, plot_save=False):  # 画出wav
     # sampwidth：它决定了音频文件的动态范围和分辨率。常见的 sampwidth 值包括 1、2、3 和 4 字节，分别对应于 8 位、16 位、24 位和 32 位的编码。
     nchannels, sampwidth, framerate, nframes = params[:4]  # 通道、采样宽度、帧率、帧数
 
-    str_bytes_data = f.readframes(nframes=nframes)   # 
-    wavedata = np.frombuffer(str_bytes_data, dtype=np.int16)
-    wavedata = wavedata * 1.0 / (max(abs(wavedata)))
-    time = np.arange(0, nframes) * (1.0 / framerate)
-    plt.plot(time, wavedata)
-    if plot_save:
-        plt.savefig(plot_save_path, bbox_inches='tight')
+    str_bytes_data = f.readframes(nframes=nframes)   # 取 nframes 帧的二进制音频数据并将其存储在 str_bytes_data 中
+    wavedata = np.frombuffer(str_bytes_data, dtype=np.int16)  # 将二进制数据转换为 16 位整数的 NumPy 数组
+    wavedata = wavedata * 1.0 / (max(abs(wavedata)))    # 对 wavedata 数组进行了归一化处理，使其值在 -1 到 1 之间
+    time = np.arange(0, nframes) * (1.0 / framerate)   # 创建一个包含 0 到 nframes - 1 的整数序列，乘以采样周期的倒数，得到每个采样点对应的时间。
+    plt.plot(time, wavedata)   # 作图，横坐标为time，纵坐标为wavedata
+    if plot_save:      # 如果图像保存设置为保存
+        plt.savefig(plot_save_path, bbox_inches='tight')    # 那就保存到目标路径中 
 
 
-def regular_channels(audio, new_channels):
+def regular_channels(audio, new_channels):# 通道数的设置
     """
     torchaudio-file([tensor,sample_rate])+target_channel -> new_tensor
     """
-    sig, sr = audio
-    if sig.shape[0] == new_channels:
-        return audio
-    if new_channels == 1:
+    sig, sr = audio                 # 赋值，调用的时候估计是audio = audio_open(path) 可以直接sig,sr = audio_open()
+    if sig.shape[0] == new_channels:      # 如果sig的第一维度=指定通道数
+        return audio                    # 那就赋值
+    if new_channels == 1:                # 如果指定通道数为1，
         new_sig = sig[:1, :]  # 直接取得第一个channel的frame进行操作即可
     else:
         # 融合(赋值)第一个通道
-        new_sig = torch.cat([sig, sig], dim=0)  # c*f->2c*f
+        new_sig = torch.cat([sig, sig], dim=0)  # c*f->2c*f  单通道变多通道
     # 顺带提一句——
     return [new_sig, sr]
 
 
-def regular_sample(audio, new_sr):
-    sig, sr = audio
-    if sr == new_sr:
+def regular_sample(audio, new_sr):    # 重采样
+    sig, sr = audio            
+    if sr == new_sr:                
         return audio
     channels = sig.shape[0]
-    re_sig = torchaudio.transforms.Resample(sr, new_sr)(sig[:1, :])
-    if channels > 1:
+    re_sig = torchaudio.transforms.Resample(sr, new_sr)(sig[:1, :]) # 对第一个通道进行重采样
+    if channels > 1:  
         re_after = torchaudio.transforms.Resample(sr, new_sr)(sig[1:, :])
         re_sig = torch.cat([re_sig, re_after])
     # 顺带提一句torch.cat类似np.concatenate,默认dim=0
@@ -71,10 +71,10 @@ def regular_sample(audio, new_sr):
 def regular_time(audio, max_time):
     sig, sr = audio
     rows, len = sig.shape
-    max_len = sr // 1000 * max_time
+    max_len = sr // 1000 * max_time  # 目的是计算最大采样点数
 
     if len > max_len:
-        sig = sig[:, :max_len]
+        sig = sig[:, :max_len]     
     elif len < max_len:
         pad_begin_len = random.randint(0, max_len - len)
         pad_end_len = max_len - len - pad_begin_len
@@ -86,14 +86,14 @@ def regular_time(audio, max_time):
     return [sig, sr]
 
 
-def time_shift(audio, shift_limit):
+def time_shift(audio, shift_limit):  # 时移增广增加数据量
     sig, sr = audio
     sig_len = sig.shape[1]
     shift_amount = int(random.random() * shift_limit * sig_len)  # 移动量
     return (sig.roll(shift_amount), sr)
 
 
-# get Spectrogram
+# get Spectrogram   # 梅尔谱图
 def get_spectro_gram(audio, n_mels=64, n_fft=1024, hop_len=None):
     sig, sr = audio
     top_db = 80
@@ -102,7 +102,7 @@ def get_spectro_gram(audio, n_mels=64, n_fft=1024, hop_len=None):
     return spec
 
 
-def spectro_augment(spec, max_mask_pct=0.1, n_freq_masks=1, n_time_masks=1):
+def spectro_augment(spec, max_mask_pct=0.1, n_freq_masks=1, n_time_masks=1):  # 数据增广:时间和频率屏蔽
     _, n_mels, n_steps = spec.shape
     mask_value = spec.mean()
     aug_spec = spec
