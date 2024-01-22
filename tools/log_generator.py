@@ -127,31 +127,31 @@ Model:\n{}\n,
         str(optimizer),
         str(model)
     )
-    exp_name = 'exp-{}_{}_{}_{}_{}_{}'.format(
+    exp_name = 'exp-{}_{}_{}_{}_{}_{}'.format(  # 保存时间、训练主题的名字
         train_theme_name,
         year, month, day,
         hour, minute, second)
-    exp_path = log_save_dir + '/' + exp_name
-    checkpoints_path = exp_path + '/checkpoints'
-    os.makedirs(exp_path, exist_ok=True)
-    os.makedirs(checkpoints_path, exist_ok=True)
+    exp_path = log_save_dir + '/' + exp_name  # 保存时间、训练主题的目录
+    checkpoints_path = exp_path + '/checkpoints'  # 参数的保存目录
+    os.makedirs(exp_path, exist_ok=True)  # 创建保存时间、训练主题的目录
+    os.makedirs(checkpoints_path, exist_ok=True) # 创建参数的保存目录
     # logger
-    log_name = '{}_{}_{}_{}_{}_{}.log'.format(
+    log_name = '{}_{}_{}_{}_{}_{}.log'.format(  # 日志名字，由训练主题和时间组成
         train_theme_name,
         year, month, day,
         hour, minute, second)
-    log_file = open(exp_path + '/' + log_name, 'w', encoding='utf-8')
-    log_file.write(content)
-    log_file.close()
+    log_file = open(exp_path + '/' + log_name, 'w', encoding='utf-8') # 打开logfile由训练主题和时间组成日志地址
+    log_file.write(content)   # 写入内容content
+    log_file.close()   # 关闭logfile
     # checkpoints
     # final_checkpoints
-    torch.save(model, checkpoints_path + '/' + 'final_model.pth'.format(
+    torch.save(model, checkpoints_path + '/' + 'final_model.pth'.format(   # 把模型保存到参数地址中
         train_theme_name,
         year, month, day, hour,
         minute, second
     ))
     torch2onnx(
-        model_path=checkpoints_path + '/' + 'final_model.pth'.format(
+        model_path=checkpoints_path + '/' + 'final_model.pth'.format(    # 将参数转化为onnx模式保存
         train_theme_name,
         year, month, day, hour,
         minute, second
@@ -160,12 +160,12 @@ Model:\n{}\n,
         inputs_shape=inputs_shape
     )
     # best_checkpoints
-    torch.save(best_cp, checkpoints_path + '/' + 'best_f1.pth'.format(
+    torch.save(best_cp, checkpoints_path + '/' + 'best_f1.pth'.format(  # 保存最佳时状态的参数
         train_theme_name,
         year, month, day, hour,
         minute, second
     ))
-    torch2onnx(
+    torch2onnx(                                            # 将最佳时状态的参数转为onnx模式保存
         model_path=checkpoints_path + '/' + 'best_f1.pth'.format(
             train_theme_name,
             year, month, day, hour,
@@ -175,9 +175,9 @@ Model:\n{}\n,
         inputs_shape=inputs_shape
     )
     # indicator.csv and indicator.jpg
-    log_plot(epoches, tags, save_fig_dir=exp_path, csv_save_path=exp_path + '/indicators.csv')
+    log_plot(epoches, tags, save_fig_dir=exp_path, csv_save_path=exp_path + '/indicators.csv') # 调用logplot画图
     print("Training log has been saved to path:{}".format(exp_path))
     # datasets' distribution
-    dataset_distribution(refer_path=csv_path, cls=cls, save_dir=exp_path)
+    dataset_distribution(refer_path=csv_path, cls=cls, save_dir=exp_path) 
 
 
