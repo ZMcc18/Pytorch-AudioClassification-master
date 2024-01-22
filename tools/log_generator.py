@@ -6,7 +6,7 @@ import seaborn as sns
 import pandas as pd
 import torch
 
-
+# dataset_distribution: 用于绘制并保存数据集的类别分布直方图。
 def dataset_distribution(refer_path, cls, save_dir=None):
     """
     tips:make sure your refer.csv have "label" key.
@@ -24,7 +24,7 @@ def dataset_distribution(refer_path, cls, save_dir=None):
     if save_dir:
         plt.savefig(save_dir + '/dataset_distribution.svg')
 
-
+# torch2onnx: 用于将 PyTorch 模型保存为 ONNX 格式，以便在其他框架或平台中使用。
 def torch2onnx(model_path,outputs_path, inputs_shape,device='cuda'):
     """
     tips:你保存的模型一定是直接通过torch.save(model)保存的——也就是保存整个模型
@@ -40,7 +40,7 @@ def torch2onnx(model_path,outputs_path, inputs_shape,device='cuda'):
     model = torch.load(model_path)
     torch.onnx.export(model, dummy_input, outputs_path, verbose=True, input_names=input_names, output_names=output_names)
 
-
+# df_generator: 用于生成和保存实验指标（如损失、准确率等）的 DataFrame。
 def df_generator(epoches, tags, save_path=None):
     """
     2022/5/24:update Auc and mAP
@@ -53,7 +53,7 @@ def df_generator(epoches, tags, save_path=None):
         df.to_csv(save_path, encoding='utf-8')
     return df
 
-
+# log_plot: 绘制并保存实验指标的趋势图。
 def log_plot(epoches, tags, save_fig_dir, csv_save_path=None):
     """
     :param epoches:迭代次数
@@ -89,7 +89,7 @@ def log_plot(epoches, tags, save_fig_dir, csv_save_path=None):
     # plt.subplots_adjust(wspace=0.3, hspace=0.6)
     # ------------------------------------
 
-
+# log_generator: 生成和保存实验日志，包括实验主题、时间、所用时长、工作目录、文件夹信息、类别信息、设备信息、基本配置、优化器、模型等。
 def log_generator(train_theme_name, csv_path, cls, inputs_shape, duration,
                   dataset_info_table, classes_info_table,
                   training_device_table, training_info_table,
