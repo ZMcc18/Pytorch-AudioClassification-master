@@ -1,3 +1,6 @@
+# 如果类型标签有规律的出现在音频文件名中则可以使用该文件
+# 需要注意的是在getclasstxt中进行修改以匹配文件名的格式
+# 整体功能就是process出npy文件并保存；将文件地址、文件名、标签存放入csv中
 import os
 
 import tqdm
@@ -58,23 +61,23 @@ class ScatterData(object):
         """
         print("Processing original sound data to npy data......")
         os.makedirs(self.npy_dir,exist_ok=True)
-        for filename in tqdm.tqdm(os.listdir(self.scatter_dir)):
-            filepath = self.scatter_dir + '/{}'.format(filename)
-            sound_data = choice_and_process(filepath)
-            npy_data = sound_data.numpy()
-            np.save(self.npy_dir + '/{}'.format(filename.split('.')[0]+'.npy'), npy_data)
+        for filename in tqdm.tqdm(os.listdir(self.scatter_dir)):       # 进度条并读取目录下的文件名
+            filepath = self.scatter_dir + '/{}'.format(filename)        # join一个文件
+            sound_data = choice_and_process(filepath)                    # 对该音频文件进行一系列预处理操作（可以是特征提取）
+            npy_data = sound_data.numpy()                                # 将操作后的数据转化为npy文件
+            np.save(self.npy_dir + '/{}'.format(filename.split('.')[0]+'.npy'), npy_data)    # 报错npy文件
         print("Done.")
 
-    def generator(self):
+    def generator(self):   # 将文件地址、文件名、标签存放入csv中
         """
         data items:filename,filepath,label
         每种scatter数据集命名格式都不太一样，其类别信息存储在名字中，建议自定义
         """
-        if not os.path.exists(self.classes_path):
+        if not os.path.exists(self.classes_path): # 如果不存在classtxt则生成
             self.getclasstxt()
-        classes_list = self.classtxt2list()
-        data = {'filename': [], 'filepath': [], 'label': []}
-        for filename in tqdm.tqdm(os.listdir(self.npy_dir)):
+        classes_list = self.classtxt2list()        # txt文件转列表
+        data = {'filename': [], 'filepath': [], 'label': []}    
+        for filename in tqdm.tqdm(os.listdir(self.npy_dir)):  
             filepath = self.npy_dir + '/{}'.format(filename)
             #######
             label_name = filename[0]
